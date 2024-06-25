@@ -1,6 +1,6 @@
 import requests
 from datetime import datetime, timedelta, timezone
-from web3 import Web3
+from web3 import Web3, utils
 import time
 
 # Configuration
@@ -93,9 +93,9 @@ def execute_buy_order(token_address):
     try:
         print("Executing buy order...")
         web3 = Web3(Web3.HTTPProvider(INFURA_URL))
-        nonce = web3.eth.getTransactionCount(ADDRESS)
-        value = web3.toWei(0.1, 'ether')  # Convert 0.1 ETH to Wei
-        gas_price = web3.toWei('50', 'gwei')  # Convert 50 Gwei to Wei
+        nonce = web3.eth.get_transaction_count(ADDRESS)
+        value = Web3.to_wei(0.1, 'ether')
+        gas_price = Web3.to_wei('50', 'gwei')  # Convert 50 Gwei to Wei
         
         transaction = {
             'nonce': nonce,
