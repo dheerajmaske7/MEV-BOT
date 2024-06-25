@@ -108,7 +108,7 @@ def execute_buy_order(token_address):
         }
         
         signed_tx = web3.eth.account.sign_transaction(transaction, PRIVATE_KEY)
-        tx_hash = web3.eth.sendRawTransaction(signed_tx.rawTransaction)
+        tx_hash = web3.eth.send_raw_transaction(signed_tx.rawTransaction)
         print(f"Transaction sent. Hash: {web3.toHex(tx_hash)}")
         return web3.toHex(tx_hash)
     except Exception as e:
@@ -130,9 +130,9 @@ def main():
             print("Current Volume:", current_volume)
 
             if check_volume_surge(initial_volume, current_volume):
-                print(f"Volume surge detected. Executing buy order.")
-                tx_hash = execute_buy_order(TOKEN_ADDRESS)
-                if tx_hash:
+               print(f"Volume surge detected. Executing buy order.")
+               tx_hash = execute_buy_order(TOKEN_ADDRESS)
+               if tx_hash:
                  print(f"Transaction hash: {tx_hash}")
 
             time.sleep(60 * 1)  # Check every 1 minute
