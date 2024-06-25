@@ -2,9 +2,11 @@ import requests
 from datetime import datetime, timedelta, timezone
 from web3 import Web3, utils
 import time
+import os
+
 
 # Configuration
-BITQUERY_API_KEY = 'BQYBCUjwoYBnGztw9L10dHscCe5nCkjb'  # Bitquery API key
+BITQUERY_API_KEY = os.getenv('BITQUERY_API_KEY')
 TOKEN_ADDRESS = '0x6679eB24F59dFe111864AEc72B443d1Da666B360'  # Address of the token to track
 INFURA_URL = 'https://eth-sepolia.g.alchemy.com/v2/YTg4XGDZmgtjMXggnHyrKLzeLUhQ4eiO'  # Sepolia testnet URL
 PRIVATE_KEY = 'e70988a08cb793b15634ad838c3fb7be4056cef220ea521d42c5428a286f77f4'  # Private key for transactions
