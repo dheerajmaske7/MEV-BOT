@@ -127,11 +127,11 @@ def main():
             current_volume = get_volume()
             print("Current Volume:", current_volume)
 
-            # if check_volume_surge(initial_volume, current_volume):
-            # print(f"Volume surge detected. Executing buy order.")
-            tx_hash = execute_buy_order(TOKEN_ADDRESS)
-            if tx_hash:
-                print(f"Transaction hash: {tx_hash}")
+            if check_volume_surge(initial_volume, current_volume):
+                print(f"Volume surge detected. Executing buy order.")
+                tx_hash = execute_buy_order(TOKEN_ADDRESS)
+                if tx_hash:
+                 print(f"Transaction hash: {tx_hash}")
 
             time.sleep(60 * 1)  # Check every 1 minute
 
