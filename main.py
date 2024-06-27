@@ -1,13 +1,12 @@
 import requests
-from datetime import datetime, timedelta, timezone
-from web3 import Web3, utils
+from datetime import datetime, timedelta
+from web3 import Web3
 import time
 import os
 
-
 # Configuration
-BITQUERY_API_KEY = os.getenv('BITQUERY_API_KEY')
-TOKEN_ADDRESS = '0x6679eB24F59dFe111864AEc72B443d1Da666B360'  # Address of the token to track
+BITQUERY_AUTH_TOKEN = "ory_at_..."
+TOKEN_ADDRESS = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'  # Address of the token to track
 INFURA_URL = 'https://eth-sepolia.g.alchemy.com/v2/YTg4XGDZmgtjMXggnHyrKLzeLUhQ4eiO'  # Sepolia testnet URL
 PRIVATE_KEY = 'e70988a08cb793b15634ad838c3fb7be4056cef220ea521d42c5428a286f77f4'  # Private key for transactions
 ADDRESS = '0xF4a86386e0297E1D53Ece30541091dda8098Ead5'  # Address from which transactions will originate
@@ -20,20 +19,18 @@ PREDEFINED_TILL_DATE = datetime.now().isoformat()[:-3] + 'Z'
 print(f"PREDEFINED_SINCE_DATE: {PREDEFINED_SINCE_DATE}")
 print(f"PREDEFINED_TILL_DATE: {PREDEFINED_TILL_DATE}")
 
-
-
 # Function to fetch historical volume data from Bitquery
 def fetch_volume_data(token_address):
     print("Fetching volume data...")
     query = """
     {
-      ethereum(network: bsc) {
-        dexTrades(
-          baseCurrency: {is: "%s"},
-          options: {limit: 1},
-          date: {since: "%s", till: "%s"}
+      EVM(dataset: realtime, network: eth) {
+        DEXTradeByTokens(
+          where: {Trade: {Currency: {SmartContract: {is: "%s"}}}, Block: {Time: {since: "%s", till: "%s"}}}
         ) {
-          tradeAmount(in: USD)
+          buy: sum(of: Trade_AmountInUSD)
+          sell: sum(of: Trade_Side_AmountInUSD)
+          count
         }
       }
     }
@@ -42,21 +39,21 @@ def fetch_volume_data(token_address):
     print("Querying Bitquery API...")
     try:
         response = requests.post(
-            'https://graphql.bitquery.io',
+            'https://streaming.bitquery.io/graphql',
             json={'query': query},
-            headers={'X-API-KEY': BITQUERY_API_KEY}
+            headers={'Authorization': f'Bearer {BITQUERY_AUTH_TOKEN}'}
         )
 
         if response.status_code == 200:
             print("Data successfully fetched.")
             data = response.json()
-            trades = data['data']['ethereum']['dexTrades']
+            trades = data['data']['EVM']['DEXTradeByTokens']
             if not trades:
                 print("No trades found.")
             else:
                 print("Fetched trades:")
                 for trade in trades:
-                    print(f" Trade Amount: {trade['tradeAmount']} USD")
+                    print(f" Buy Volume: {trade['buy']} USD, Sell Volume: {trade['sell']} USD")
             return trades
         else:
             raise Exception(f"Failed to fetch data: {response.text}")
@@ -73,7 +70,7 @@ def get_volume():
         if trades is None:
             return 0  # No trades, so volume is 0
 
-        total_volume = sum(trade['tradeAmount'] for trade in trades)
+        total_volume = sum(float(trade['buy']) + float(trade['sell']) for trade in trades)
         print(f"Total volume: {total_volume}")
         return total_volume
     except Exception as e:
@@ -85,8 +82,7 @@ def check_volume_surge(initial_volume, current_volume):
     print("Checking volume surge condition...")
     if initial_volume > 0:
         increase_percentage = ((current_volume - initial_volume) / initial_volume) * 100
-        print(f"For Time: {PREDEFINED_SINCE_DATE}" +" the " + f"increase percentage is: {increase_percentage}%")
-      #  print(f"Increase percentage: {increase_percentage}%")
+        print(f"For Time: {PREDEFINED_SINCE_DATE}" + " the " + f"increase percentage is: {increase_percentage}%")
         return increase_percentage >= VOLUME_SURGE_THRESHOLD
     return False
 
@@ -114,11 +110,7 @@ def execute_buy_order(token_address):
     except Exception as e:
         print(f"Error in execute_buy_order: {str(e)}")
         return None
-    
 
-
-
-    
 # Main function to run the bot
 def main():
     try:
@@ -130,10 +122,10 @@ def main():
             print("Current Volume:", current_volume)
 
             if check_volume_surge(initial_volume, current_volume):
-               print(f"Volume surge detected. Executing buy order.")
-               tx_hash = execute_buy_order(TOKEN_ADDRESS)
-               if tx_hash:
-                 print(f"Transaction hash: {tx_hash}")
+                print(f"Volume surge detected. Executing buy order.")
+                tx_hash = execute_buy_order(TOKEN_ADDRESS)
+                if tx_hash:
+                    print(f"Transaction hash: {tx_hash}")
 
             time.sleep(60 * 1)  # Check every 1 minute
 
