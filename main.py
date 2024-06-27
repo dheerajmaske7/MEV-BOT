@@ -1,11 +1,11 @@
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from web3 import Web3
 import time
 import os
 
 # Configuration
-BITQUERY_AUTH_TOKEN = "ory_at_..."
+BITQUERY_AUTH_TOKEN = "ory_at_"
 TOKEN_ADDRESS = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'  # Address of the token to track
 INFURA_URL = 'https://eth-sepolia.g.alchemy.com/v2/YTg4XGDZmgtjMXggnHyrKLzeLUhQ4eiO'  # Sepolia testnet URL
 PRIVATE_KEY = 'e70988a08cb793b15634ad838c3fb7be4056cef220ea521d42c5428a286f77f4'  # Private key for transactions
@@ -14,8 +14,8 @@ VOLUME_SURGE_THRESHOLD = 0.1  # Threshold for volume surge detection (0.1% incre
 TIME_WINDOW_MINUTES = 60  # Time window in minutes for historical data fetching
 
 # Predefined time range for historical data query
-PREDEFINED_SINCE_DATE = (datetime.now() - timedelta(minutes=TIME_WINDOW_MINUTES)).isoformat()[:-3] + 'Z'
-PREDEFINED_TILL_DATE = datetime.now().isoformat()[:-3] + 'Z'
+PREDEFINED_SINCE_DATE = (datetime.now(timezone.utc) - timedelta(minutes=TIME_WINDOW_MINUTES)).strftime("%Y-%m-%dT%H:%M:%SZ")
+PREDEFINED_TILL_DATE = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 print(f"PREDEFINED_SINCE_DATE: {PREDEFINED_SINCE_DATE}")
 print(f"PREDEFINED_TILL_DATE: {PREDEFINED_TILL_DATE}")
 
