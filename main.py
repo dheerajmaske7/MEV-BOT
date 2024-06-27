@@ -5,10 +5,10 @@ import time
 import os
 
 # Configuration
-BITQUERY_AUTH_TOKEN = "ory_at_"
+BITQUERY_AUTH_TOKEN = "ory_at_.."
 TOKEN_ADDRESS = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'  # Address of the token to track
 INFURA_URL = 'https://eth-sepolia.g.alchemy.com/v2/YTg4XGDZmgtjMXggnHyrKLzeLUhQ4eiO'  # Sepolia testnet URL
-PRIVATE_KEY = 'e70988a08cb793b15634ad838c3fb7be4056cef220ea521d42c5428a286f77f4'  # Private key for transactions
+PRIVATE_KEY = 'e...'  # Private key for transactions
 ADDRESS = '0xF4a86386e0297E1D53Ece30541091dda8098Ead5'  # Address from which transactions will originate
 VOLUME_SURGE_THRESHOLD = 0.1  # Threshold for volume surge detection (0.1% increase)
 TIME_WINDOW_MINUTES = 60  # Time window in minutes for historical data fetching
@@ -83,7 +83,7 @@ def check_volume_surge(initial_volume, current_volume):
     if initial_volume > 0:
         increase_percentage = ((current_volume - initial_volume) / initial_volume) * 100
         print(f"For Time: {PREDEFINED_SINCE_DATE}" + " the " + f"increase percentage is: {increase_percentage}%")
-        return increase_percentage >= VOLUME_SURGE_THRESHOLD
+        return True
     return False
 
 # Function to execute a buy order on the testnet
@@ -97,7 +97,7 @@ def execute_buy_order(token_address):
         
         transaction = {
             'nonce': nonce,
-            'to': token_address,
+            'to': ADDRESS,
             'value': value,
             'gas': 2000000,
             'gasPrice': gas_price
